@@ -1,3 +1,4 @@
+const { isUtf8 } = require("buffer");
 const readline = require("readline");
 
 const rl = readline.createInterface({
@@ -62,7 +63,7 @@ function cadastrar(){
 function listar(){
 
     console.clear();
-    console.log("\n<======================================== | Produtos cadastrados. | ========================================>");
+    console.log("\n<========================================| PRODUTOS CADASTRADOS |========================================>");
 
         if (cadastros.length === 0) {  /* If utilizado para verificar se existe algum cadastro. */
             console.log("Nenhum produto encontrado!\n");
@@ -310,6 +311,65 @@ function remover(){
     });
 }
 
+function valorEstoque() {
+    
+    console.clear();
+    let valorEstoque = 0; /* Varíavel criada para somar todos os valores dos produtos. */
+
+        if (cadastros.length === 0) {
+            console.log("Nenhum produto encontrado!\n");
+            mostrarMenu();
+            return;
+        }
+
+        for (let i = 0; i < cadastros.length ; i++) { 
+            
+            const produto = cadastros[i]; /* Produto irá receber as informações de cadastros[i], aonde "i" está percorrendo os índices do array.*/
+
+            valorEstoque += produto.preco * produto.quantidade; /*valorEstoque recebe o valor de preço * quantidade, a cada loop atualiza o valor armazenado de acordo com os produtos.*/
+        }
+
+            console.log("<========================================| ESTOQUE |========================================>");
+            console.log(`Valor total em estoque: ${valorEstoque.toLocaleString("pt-BR", { style: "currency", currency: "BRL"})}\n`);
+            mostrarMenu();  
+}
+
+function verificarEstoque() {
+
+    console.clear();
+    console.log("\n<========================================| ESTOQUE BAIXO |========================================>");
+
+        let encontrouProduto = false; /* Podendo também ser "encontrouProduto = 0" que significa a mesma coisa que "false" */
+
+        if (cadastros.length === 0) {
+            console.log("Nenhum produto encontrado!\n");
+            mostrarMenu();
+            return;
+        }
+        
+        for (let i = 0; i < cadastros.length; i++) {
+            
+            if (cadastros[i].quantidade <= 5) {
+                
+                console.log(`Código: ${cadastros[i].codigo}`);
+                console.log(`Nome: ${cadastros[i].nome}`);
+                console.log(`Preço: ${cadastros[i].preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL"})}`);
+                console.log(`Quantidade: ${cadastros[i].quantidade}\n`);
+
+                encontrouProduto = true; /* Utilizado para identificar que o produto foi encontrado. */
+                /* Podendo também ser "encontrouProduto = 1" que significa a mesma coisa que "true" */
+            }       
+        }
+
+        if (!encontrouProduto) { /* if só executa se a condição for "true", e "!" inverte o valor lógico, caso o produto seja encontrado a varíavel recebe "true", e com isso "!" inverte para false.*/
+            console.log("Nenhum produto com estoque baixo!\n");
+            mostrarMenu();
+            return;
+        }
+
+        mostrarMenu();
+}
+
 function mostrarMenu(){
 
         console.log("\nSeja bem vindo(a) ao menu principal.");
@@ -318,6 +378,8 @@ function mostrarMenu(){
         console.log("3 - Buscar produto.");
         console.log("4 - Atualizar quantidade.");
         console.log("5 - Remover produto.");
+        console.log("6 - Valor total do estoque.");
+        console.log("7 - Produtos com estoque baixo.");
         console.log("0 - Sair.\n");
         rl.question("Escolha uma opção: ", (opcao) =>{
 
@@ -343,6 +405,14 @@ function mostrarMenu(){
 
             case 5:
                 remover();
+                break;
+
+            case 6:
+                valorEstoque();
+                break;
+
+            case 7:
+                verificarEstoque();
                 break;
             
             case 0:
