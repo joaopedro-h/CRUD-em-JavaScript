@@ -19,26 +19,47 @@ const cadastros = []; /* Variável declarada para contar os cadastros feitos.*/
 
 function cadastrar(){
 
-            console.clear();
-            console.log("\n< Informe os dados do produto >");
-                
+        console.clear();
+        console.log("\n< Informe os dados do produto >");
+                    
         rl.question("Código do produto: ", (codigo) => { /* rl.question utilizado para perguntar ao usuário e guardar o valor em memória, ex : codigo, e assim por diante. */
+
+            for (let i = 0; i < cadastros.length; i++) { /* for usado para buscar se já existe produto cadastrado com o mesmo código. */
+                        
+                if (codigo == cadastros[i].codigo) {
+                    console.log("\nProduto com código já existente!\n");
+                    mostrarMenu();
+                    return;
+                }
+            }
 
             rl.question("Nome do produto: ", (nome) => {
 
-                    for (let i = 0; i < cadastros.length; i++) { /* for usado para buscar se já existe produto cadastrado com o mesmo nome. */
-                            
-                        if ( nome  === cadastros[i].nome ) {
-                            console.log("\nProduto já cadastrado!");
-                            mostrarMenu();
-                            return;          
-                        }  
-                    }
+                for (let i = 0; i < cadastros.length; i++) { /* for usado para buscar se já existe produto cadastrado com o mesmo nome. */
+                                
+                    if ( nome  === cadastros[i].nome ) {
+                        console.log("\nProduto já cadastrado!\n");
+                        mostrarMenu();
+                        return;          
+                    }  
+                }
 
                 rl.question("Preço do produto: ", (preco) => {
 
-                    rl.question("Quantidade do produto: ", (quantidade) =>{
-                        
+                    if (preco <= 0) {  /* If criado para impossibilitar cadastrar produtos com valor zerado ou negativo. */
+                        console.log("\nValor inválido!");
+                        mostrarMenu();
+                        return;                      
+                    }
+
+                    rl.question("Quantidade do produto: ", (quantidade) =>{ /* If criado para impossibilitar cadastrar produtos com quantidade zerada ou negativa. */
+
+                        if (quantidade <= 0) {
+                            console.log("\nQuantidade inválida!\n");
+                            mostrarMenu();
+                            return;
+                        }
+                                
                         const produto = new Produto ( /* Aqui foi criado uma váriavel produto, aonde irá armazenar o novo objeto criado, 'produto' irá receber as propiedades de 'new Produto' */
                             Number(codigo),
                             nome,
@@ -50,7 +71,7 @@ function cadastrar(){
                         console.clear();
                         console.log("Cadastrado com sucesso!\n\n");
                         mostrarMenu(); /* mostrarMenu(); é utilizado para poder voltar ao menu inicial, semelhante ao return; */
-                        
+                            
                     });
 
                 });
@@ -329,7 +350,7 @@ function valorEstoque() {
             valorEstoque += produto.preco * produto.quantidade; /*valorEstoque recebe o valor de preço * quantidade, a cada loop atualiza o valor armazenado de acordo com os produtos.*/
         }
 
-            console.log("<========================================| ESTOQUE |========================================>");
+            console.log("<========================================| VALOR TOTAL DO ESTOQUE |========================================>");
             console.log(`Valor total em estoque: ${valorEstoque.toLocaleString("pt-BR", { style: "currency", currency: "BRL"})}\n`);
             mostrarMenu();  
 }
@@ -370,6 +391,52 @@ function verificarEstoque() {
         mostrarMenu();
 }
 
+function relatorio() {
+    
+    console.clear();
+    let valorEstoque = 0;
+    let estoqueBaixo = 0;
+    let maiorValorEncontrado = 0;
+    let valorProduto = 0 ;
+    let nomeMaiorProduto;
+    let valorUnidade = 0;
+
+       if (cadastros.length === 0) {
+            console.log("Nenhum produto encontrado!\n");
+            mostrarMenu();
+            return;
+        }
+
+        for (let i = 0; i < cadastros.length; i++) {
+            
+            const produto = cadastros[i];
+
+            valorEstoque += produto.preco * produto.quantidade; /* Variável utilizada para fazer o calculo de cada produto e sendo atribuido nela mesmo a cada loop pelo += */
+            
+            if (produto.quantidade <= 5) { /* If utilizado para contabilizar cada produto em estoque baixo. */
+                estoqueBaixo += 1;
+            }
+
+            valorProduto = produto.preco * produto.quantidade; /* Variável que vai receber o valor do cálculo de cada produto durante o loop. */
+
+            if (valorProduto > maiorValorEncontrado) { /* "maiorValorEncontrado" foi utilizada para armazenar o novo valor do cálculo SE for maior que do que o valor atual. */
+
+                maiorValorEncontrado = valorProduto; /* Se o "valorProduto" for maior que "maiorValorEncontrado" ele recebe o novo maior valor. */
+                valorUnidade = produto.preco;
+                nomeMaiorProduto = produto.nome; /* Variável utilizada para armazenar o nome do maior produto encontrado. */
+                     
+            } 
+        }
+        
+        console.log(`Total de produtos cadastrados: ${cadastros.length}`);
+        console.log(`Valor total do estoque: ${valorEstoque.toLocaleString("pt-BR", { style: "currency", currency: "BRL"})}`);
+        console.log(`Quantidade de produtos em estoque baixo: ${estoqueBaixo}`);
+        console.log(`Produto com maior valor em estoque: ${nomeMaiorProduto}  (Unidade: ${valorUnidade.toLocaleString("pt-BR", { style: "currency", currency: "BRL"})})\n`);
+        
+        mostrarMenu();
+            
+}
+
 function mostrarMenu(){
 
         console.log("\nSeja bem vindo(a) ao menu principal.");
@@ -380,6 +447,7 @@ function mostrarMenu(){
         console.log("5 - Remover produto.");
         console.log("6 - Valor total do estoque.");
         console.log("7 - Produtos com estoque baixo.");
+        console.log("8 - Relatório total.");
         console.log("0 - Sair.\n");
         rl.question("Escolha uma opção: ", (opcao) =>{
 
@@ -413,6 +481,10 @@ function mostrarMenu(){
 
             case 7:
                 verificarEstoque();
+                break;
+
+            case 8:
+                relatorio();
                 break;
             
             case 0:
